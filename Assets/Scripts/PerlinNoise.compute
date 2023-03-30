@@ -4,6 +4,7 @@ float Scale;
 float Res;
 float AnFLenght;
 int seed;
+float2 Offset;
 
 StructuredBuffer<float2> FreqAndAmp;
 RWStructuredBuffer<float3> Output;
@@ -57,9 +58,9 @@ void CSmain(uint3 id : SV_DispatchThreadID)
     for (int i = 0; i < AnFLenght; i++)
     {
         noise += FreqAndAmp[i].y * Unity_GradientNoise_float(float2(
-            FreqAndAmp[i].x * id.x / Res + seed,
-            FreqAndAmp[i].x * id.y / Res + seed), Scale) - FreqAndAmp[i].y / 2;
+            FreqAndAmp[i].x * id.x / Res + seed + Offset.x,
+            FreqAndAmp[i].x * id.y / Res + seed + Offset.y), Scale) - FreqAndAmp[i].y / 2;
     }
-    Output[id.x * Res + id.y] = float3(id.x - Res / 2, noise, id.y - Res / 2);
+    Output[id.x * Res + id.y] = float3(id.x, noise, id.y);
 }
 

@@ -11,7 +11,9 @@ public class Noise : MonoBehaviour
 
     public int seed;
     public Vector2[] FnA;
-  
+
+    public float OffsetX;
+    public float OffsetY;
     public float Scale;
 
     private Vector3[] Vertecies;
@@ -35,6 +37,7 @@ public class Noise : MonoBehaviour
         Shader.SetFloat("Res", Res);
         Shader.SetFloat("AnFLenght", FnA.Length);
         Shader.SetInt("seed", seed);
+        Shader.SetFloats("Offset", new float[2]{OffsetX, OffsetY});
         //setting Frequencies and Amplitudes
         ComputeBuffer FreqAndAmp = new ComputeBuffer(FnA.Length, sizeof(float) * 2 * FnA.Length);
         FreqAndAmp.SetData(FnA);
@@ -99,7 +102,7 @@ public class Noise : MonoBehaviour
 
 
     
-    //this is for converting x and y coords into a single vertex.
+    //this is for converting x and y coords into a single index.
     int[,] vertexsimplyfi()
     {
         int[,] simplevertex = new int[Res, Res];
