@@ -23,13 +23,14 @@ public class GunTypeWeapon : Weapon
         BulletIndex = 0;
     }
     [ServerRpc]
-    public override void MainServerRpc(PlayerMovement PlayerToAttack, PlayerMovement AttackingPlayer)
+    public override void MainServerRpc(ulong PlayerToAttack, ulong AttackingPlayer)
     {
         if (IsReloaded)
         {
             Bullet bul = Bullets[BulletIndex];
-            bul.transform.position = AttackingPlayer.fist.transform.position + AttackingPlayer.fist.transform.up * 3f;
-            bul.transform.rotation = AttackingPlayer.fist.rotation;
+            PlayerMovement p = GetPlayerByID(AttackingPlayer).GetComponent<PlayerMovement>();
+            bul.transform.position = p.fist.transform.position + p.fist.transform.up * 3f;
+            bul.transform.rotation = p.fist.rotation;
             bul.Shoot();
             if (BulletIndex < MagSize - 1){
                 BulletIndex++;
@@ -54,20 +55,5 @@ public class GunTypeWeapon : Weapon
         Debug.Log("Reload Finished");
         IsReloaded = true;
         BulletIndex = 0;
-    }
-    public override void NetworkSerialize<T>(BufferSerializer<T> serializer)
-    {
-        if (serializer.IsWriter)
-        {
-            serializer.GetFastBufferWriter().WriteValueSafe(IsReloaded);
-            serializer.GetFastBufferWriter().WriteValueSafe(ReloadTime);
-            serializer.GetFastBufferWriter().WriteValueSafe(BulletIndex);
-        }
-        else
-        {
-            serializer.GetFastBufferReader().ReadValueSafe(out IsReloaded);
-            serializer.GetFastBufferReader().ReadValueSafe(out ReloadTime);
-            serializer.GetFastBufferReader().ReadValueSafe(out BulletIndex);
-        }
     }
 }

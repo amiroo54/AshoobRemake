@@ -6,37 +6,27 @@ using System;
 public class FistTypeWeaponSer : Weapon
 {
     public float AttackForce;
-    [ServerRpc]
-    public override void MainServerRpc(PlayerMovement PlayerToAttack, PlayerMovement AttackingPlayer)
+    [ServerRpc(RequireOwnership=false)]
+    public override void MainServerRpc(ulong PlayerToAttack, ulong AttackingPlayer)
     {
+        PlayerMovement p = GetPlayerByID(AttackingPlayer).GetComponent<PlayerMovement>();
+        PlayerMovement d = GetPlayerByID(PlayerToAttack).GetComponent<PlayerMovement>();
         if (PlayerToAttack == AttackingPlayer)
         {
-            AttackingPlayer.fist.AddForce((AttackingPlayer.torso.transform.forward) * AttackForce, ForceMode.Impulse);
+            p.fist.AddForce((p.torso.transform.forward) * AttackForce, ForceMode.Impulse);
         }
         else
         {
-            AttackingPlayer.fist.AddForce(Vector3.Normalize(PlayerToAttack.torso.transform.position - AttackingPlayer.torso.transform.position) * AttackForce, ForceMode.Impulse);
+            p.fist.AddForce(Vector3.Normalize(d.torso.transform.position - p.torso.transform.position) * AttackForce, ForceMode.Impulse);
         }
     }
-    [ServerRpc]
+    [ServerRpc(RequireOwnership=false)]
     public override void SecondaryServerRpc()
     {
         
     }
-    [ServerRpc]
+    [ServerRpc(RequireOwnership=false)]
     public override void StartServerRpc()
     {
-    }
-    public override void NetworkSerialize<T>(BufferSerializer<T> serializer)
-    {
-        base.NetworkSerialize(serializer);
-        if (serializer.IsWriter)
-        {
-            serializer.GetFastBufferWriter().WriteValueSafe(AttackForce);
-        }
-        else
-        {
-            serializer.GetFastBufferReader().ReadValueSafe(out AttackForce);
-        }
     }
 }

@@ -5,8 +5,9 @@ using Cinemachine;
 using UnityEngine.InputSystem;
 using Unity.Netcode;
 
-public class PlayerMovement : NetworkBehaviour, INetworkSerializable
+public class PlayerMovement : NetworkBehaviour
 {
+    public ulong PlayerIndex;
     public GameObject ThirdPerosnVC;
     public GameObject FirstPersonVC;
     private PlayerInput Input;
@@ -31,10 +32,14 @@ public class PlayerMovement : NetworkBehaviour, INetworkSerializable
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+        PlayerIndex = NetworkManager.Singleton.LocalClientId;
         PlayerList.Add(this);
-        RandomPositionServerRpc(100);
-        WeaponChange(CurrentWeapon);
-        
+        RandomPositionServerRpc(100);        
+    }
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        PlayerList.Remove(this);
     }
     void Update()
     {
@@ -55,7 +60,7 @@ public class PlayerMovement : NetworkBehaviour, INetworkSerializable
         }
         if (Input.Move.Attack.WasPerformedThisFrame())
         {
-            CurrentWeapon.MainServerRpc(ClosestPlayer, this);
+            CurrentWeapon.MainServerRpc(ClosestPlayer.PlayerIndex, PlayerIndex);
         }
         if (Input.Move.Secondary.WasPerformedThisFrame())
         {
@@ -78,36 +83,16 @@ public class PlayerMovement : NetworkBehaviour, INetworkSerializable
             IsThirdPerson = true;
         }
     }
-    [ServerRpc]
+    [ServerRpc(RequireOwnership=false)]
     void MoveServerRpc(float x, float y)
     {
         torso.AddForce(new Vector3(x, 0, y) * speed * Time.deltaTime, ForceMode.Impulse);
     }
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership=false)]
     void RandomPositionServerRpc(int RandomHeight)
     {
         torso.transform.position = new Vector3(UnityEngine.Random.Range(GameManager.instance.Res / 2, GameManager.instance.Res), 100, UnityEngine.Random.Range(GameManager.instance.Res / 2, GameManager.instance.Res));
     }    
-    public void WeaponChange(Weapon weapon)
-    {
-        CurrentWeapon = weapon;
-        CurrentWeapon.StartServerRpc();
-        WeaponMeshFileter.mesh = CurrentWeapon.displayMesh;
-        WeaponMeshRenderer.material = CurrentWeapon.material;
-    }
 
-    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
-    {
-        if (serializer.IsWriter)
-        {
-            serializer.GetFastBufferWriter().WriteValueSafe(ClosestPlayer);
-            serializer.GetFastBufferWriter().WriteValueSafe(CurrentWeapon);
-        }
-        else
-        {
-            serializer.GetFastBufferReader().ReadValueSafe(out ClosestPlayer);
-            serializer.GetFastBufferWriter().WriteValueSafe(CurrentWeapon);
-        }
-    }
 }
