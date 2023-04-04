@@ -1,125 +1,137 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Collections.LowLevel.Unsafe;
 
 public class Noise : MonoBehaviour
 {
-    public ComputeShader Shader;
-    public int Res;
+    private ComputeShader CShader;
+    private int Res;
 
-    public Gradient grad;
+    private Gradient grad;
 
-    public int seed;
-    public Vector2[] FnA;
+    private int seed;
+    private Vector2[] FnA;
 
-    public float OffsetX;
-    public float OffsetY;
-    public float Scale;
-
-    private Vector3[] Vertecies;
+    private float OffsetX;
+    private float OffsetY;
+    private float Scale;
+    public Vector3 SideMeshVerts;
     private Vector2[] UV;
-
-    public void UpdateMesh()
+    public float[] MinMaxData;
+    public Mesh Readymesh;
+    public void Construct(float _Scale, Vector2 _Offset, Vector2[] _FnA, Gradient _grad, int _res, int _seed)
     {
-        print(seed);
-        Compute();
-        Mesh Readymesh = TexGen(AddVertsAndTris());
+        Scale = _Scale;
+        OffsetX = _Offset.x;
+        OffsetY = _Offset.y;
+        FnA = _FnA;
+        grad = _grad;
+        Res = _res;
+        seed = _seed;
+    }
+    public void UpdateMeshVerts()
+    {
+        UnsafeUtility.SetLeakDetectionMode(Unity.Collections.NativeLeakDetectionMode.EnabledWithStackTrace);
+        CShader = Resources.Load<ComputeShader>("PerlinNoise");
+        Readymesh = AddVertsAndTrisAndColors();
         Readymesh.Optimize();
+    }
+    public void UpdateMeshData()
+    {
+        Readymesh = AddData(Readymesh);
         GetComponent<MeshFilter>().mesh = Readymesh;
         GetComponent<MeshCollider>().sharedMesh = Readymesh;
     }
 
-    public void Compute()
+    public Vector3[] GetVerteces()
     {
-        Vertecies = new Vector3[Res * Res];
+        Vector3[] Vertecies = new Vector3[Res * Res];
         //setting the shader constants
-        Shader.SetFloat("Scale", Scale);
-        Shader.SetFloat("Res", Res);
-        Shader.SetFloat("AnFLenght", FnA.Length);
-        Shader.SetInt("seed", seed);
-        Shader.SetFloats("Offset", new float[2]{OffsetX, OffsetY});
+        CShader.SetFloat("Scale", Scale);
+        CShader.SetInt("Res", Res);
+        CShader.SetFloat("AnFLenght", FnA.Length);
+        CShader.SetInt("seed", seed);
+        CShader.SetFloats("Offset", new float[2]{OffsetX, OffsetY});
         //setting Frequencies and Amplitudes
         ComputeBuffer FreqAndAmp = new ComputeBuffer(FnA.Length, sizeof(float) * 2 * FnA.Length);
         FreqAndAmp.SetData(FnA);
-        Shader.SetBuffer(0, "FreqAndAmp", FreqAndAmp);
+        CShader.SetBuffer(0, "FreqAndAmp", FreqAndAmp);
 
         ComputeBuffer Result = new ComputeBuffer(Res * Res, sizeof(float) * Res * Res * 3);
-        Shader.SetBuffer(0, "Output", Result);
+        CShader.SetBuffer(0, "Output", Result);
 
-        ComputeBuffer MinMax = new ComputeBuffer(1, sizeof(float) * 2);
-        Shader.SetBuffer(0, "MinMax", MinMax);
+        MinMaxData = new float[]{10, 0};
+        ComputeBuffer MinMax = new ComputeBuffer(2, sizeof(float) * 2);
+        MinMax.SetData(MinMaxData);
+        CShader.SetBuffer(0, "MinMaxHeight", MinMax);
 
-        Shader.Dispatch(0, Res, Res, 1);
+        CShader.Dispatch(0, Res, Res, 1);
         
         Result.GetData(Vertecies);
 
+        
+        MinMax.GetData(MinMaxData);
         Result.Release();
         FreqAndAmp.Release();
-
+        return Vertecies;
     }
-
-    private Mesh TexGen(Mesh mesh)
+    public int[] GetTris()
     {
-        Color[] colors = new Color[Vertecies.Length];
-        for (int i = 0; i < Vertecies.Length; i++)
-        {
-            colors[i] = grad.Evaluate(Vertecies[i].y / FnA[0].y);
-        }
-        mesh.colors = colors;
-        return mesh;
+        int[] meshDatas = new int[(Res) * (Res) * 6];
+        ComputeBuffer meshDatasBuffer = new ComputeBuffer(meshDatas.Length, sizeof(int) * 3);
+        meshDatasBuffer.SetData(meshDatas);
+        CShader.SetBuffer(1, "meshdata", meshDatasBuffer);
+        CShader.Dispatch(1, Res - 1, Res - 1, 1);
+        meshDatasBuffer.GetData(meshDatas);
+        meshDatasBuffer.Release();
+        return meshDatas;
     }
-    public Mesh AddVertsAndTris()
+    public VertData[] GetVertDatas(Mesh mesh)
+    {
+        CShader = Resources.Load<ComputeShader>("PerlinNoise");
+        VertData[] vertDatas = new VertData[Res * Res];
+        ComputeBuffer vertDataBuffer = new ComputeBuffer(vertDatas.Length, sizeof(float) * 3);
+        vertDataBuffer.SetData(vertDatas);
+        CShader.SetInt("Res", Res);
+        CShader.SetBuffer(3, "vertdata", vertDataBuffer);
+        CShader.Dispatch(3, Res, Res, 1);
+        vertDataBuffer.GetData(vertDatas);
+        vertDataBuffer.Release();
+        return vertDatas;
+    }
+    public Mesh AddVertsAndTrisAndColors()
     {
         Mesh mesh = new Mesh();
-        mesh.vertices = Vertecies;
-        int[] triangles = new int[Res * Res * 6];
-        int triIndex = 0;
-
-       
-        int[,] simplevertex = vertexsimplyfi();
-
-
-        //adding tris based on the x and y.
-        for (int x = 0; x < Res - 1; x++)
-        {
-            for (int y = 0; y < Res - 1; y++)
-            {
-                triangles[triIndex + 0] = simplevertex[x, y];
-                triangles[triIndex + 1] = simplevertex[x, y + 1];
-                triangles[triIndex + 2] = simplevertex[x + 1, y];
-                triangles[triIndex + 3] = simplevertex[x + 1, y];
-                triangles[triIndex + 4] = simplevertex[x, y + 1];
-                triangles[triIndex + 5] = simplevertex[x + 1, y + 1];
-                triIndex += 6;
-            }
-        }
-        mesh.triangles = triangles;
-        mesh.uv = UV;
+        mesh.vertices = GetVerteces();
+        mesh.triangles = GetTris();
+        mesh.RecalculateBounds();
         mesh.RecalculateNormals();
         mesh.name = "Map";
         return mesh;
     }
 
-
-    
-    //this is for converting x and y coords into a single index.
-    int[,] vertexsimplyfi()
+    public Mesh AddData(Mesh mesh)
     {
-        int[,] simplevertex = new int[Res, Res];
-        int index = 0;
-        UV = new Vector2[Res * Res];
-        for (int x = 0; x < Res; x++)
-        {
-            for (int y = 0; y < Res; y++)
-            {
-                simplevertex[x, y] = index;
-                UV[index] = new Vector2(x, y);
-                index++;
-
-            }
-        }
-        return simplevertex;
+        VertData[] vertData = GetVertDatas(mesh);
+        mesh.colors = System.Array.ConvertAll<VertData, Color>(vertData, VertDatatoColor);
+        mesh.SetUVs(0, System.Array.ConvertAll<VertData, Vector2>(vertData, VertDatatoUV));
+        return mesh;
     }
-
-
+    Color VertDatatoColor(VertData n)
+    {
+        return grad.Evaluate(n.color);
+    }
+    Vector2 VertDatatoUV(VertData n)
+    {
+        Debug.Log(n.UVx + "  :  " + n.UVy);
+        return new Vector2(n.UVx, n.UVy);
+    }
+    //this is for converting x and y coords into a single index.
+    public struct VertData
+    {
+        public float UVx;
+        public float UVy;
+        public float color;
+    }
 }
