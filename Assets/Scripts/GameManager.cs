@@ -24,6 +24,8 @@ public class GameManager : NetworkBehaviour
     public Gradient grad;
     public Noise[] Maps;
     public Material mapmat;
+    public float IslandShapeScale;
+    [SerializeField] Transform _water;
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -36,6 +38,10 @@ public class GameManager : NetworkBehaviour
     }
     public void SpawnMaps()
     {   
+        if (Res % 2 == 1)
+        {
+            Res++;
+        }
         Maps = new Noise[Res * Res];
         foreach (Transform child in GetComponentsInChildren<Transform>())
         {
@@ -54,14 +60,18 @@ public class GameManager : NetworkBehaviour
                 }
                 GameObject MapGO = new GameObject("map", new Type[]{typeof(MeshRenderer), typeof(MeshFilter), typeof(MeshCollider)});
                 Noise map = MapGO.AddComponent<Noise>();
-                map.Construct(Scale, new Vector2(x, y), FnA, grad, ChunkRes, Seed.Value);
+                Vector2 offset = new Vector2(x - Res / 2, y - Res/2);
+                map.Construct(Scale, offset, FnA, grad, ChunkRes, Seed.Value, IslandShapeScale, Res);
                 MapGO.transform.parent = transform;
-                MapGO.transform.localPosition  = new Vector3(x * (ChunkRes - 1), 0, y * (ChunkRes - 1));
+                float mapPosOffset = ((ChunkRes - 1) * Res / 2);
+                MapGO.transform.localPosition  = new Vector3(x * (ChunkRes - 1) - mapPosOffset , 0, y * (ChunkRes - 1) - mapPosOffset);
                 MapGO.GetComponent<MeshRenderer>().material = mapmat;
                 map.UpdateMeshVerts();
                 map.UpdateMeshData();
                 Maps[x * Res + y] = map;
             }
         }
+        float WaterScale = Res * ChunkRes / 2 - (Res / 2);
+        _water.localScale = new Vector3(WaterScale, WaterScale, WaterScale);
     }
 }

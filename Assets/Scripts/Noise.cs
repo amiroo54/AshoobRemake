@@ -13,14 +13,15 @@ public class Noise : MonoBehaviour
     private int seed;
     private Vector2[] FnA;
 
-    private float OffsetX;
-    private float OffsetY;
+    [SerializeField] float OffsetX;
+    [SerializeField] float OffsetY;
     private float Scale;
-    public Vector3 SideMeshVerts;
     private Vector2[] UV;
     public float[] MinMaxData;
     public Mesh Readymesh;
-    public void Construct(float _Scale, Vector2 _Offset, Vector2[] _FnA, Gradient _grad, int _res, int _seed)
+    private float IScale;
+    private int TotalRes;
+    public void Construct(float _Scale, Vector2 _Offset, Vector2[] _FnA, Gradient _grad, int _res, int _seed, float _iSclae, int _TotalRes)
     {
         Scale = _Scale;
         OffsetX = _Offset.x;
@@ -29,13 +30,15 @@ public class Noise : MonoBehaviour
         grad = _grad;
         Res = _res;
         seed = _seed;
+        IScale = _iSclae;
+        TotalRes = _TotalRes;
     }
     public void UpdateMeshVerts()
     {
         UnsafeUtility.SetLeakDetectionMode(Unity.Collections.NativeLeakDetectionMode.EnabledWithStackTrace);
         CShader = Resources.Load<ComputeShader>("PerlinNoise");
         Readymesh = AddVertsAndTrisAndColors();
-        Readymesh.Optimize();
+        //_printverts(Readymesh);
     }
     public void UpdateMeshData()
     {
@@ -53,6 +56,8 @@ public class Noise : MonoBehaviour
         CShader.SetFloat("AnFLenght", FnA.Length);
         CShader.SetInt("seed", seed);
         CShader.SetFloats("Offset", new float[2]{OffsetX, OffsetY});
+        CShader.SetFloat("IslandShapeScale", IScale);
+        CShader.SetInt("TotalRes", TotalRes);
         //setting Frequencies and Amplitudes
         ComputeBuffer FreqAndAmp = new ComputeBuffer(FnA.Length, sizeof(float) * 2 * FnA.Length);
         FreqAndAmp.SetData(FnA);
@@ -69,8 +74,6 @@ public class Noise : MonoBehaviour
         CShader.Dispatch(0, Res, Res, 1);
         
         Result.GetData(Vertecies);
-
-        
         MinMax.GetData(MinMaxData);
         Result.Release();
         FreqAndAmp.Release();
@@ -89,11 +92,9 @@ public class Noise : MonoBehaviour
     }
     public VertData[] GetVertDatas(Mesh mesh)
     {
-        CShader = Resources.Load<ComputeShader>("PerlinNoise");
         VertData[] vertDatas = new VertData[Res * Res];
         ComputeBuffer vertDataBuffer = new ComputeBuffer(vertDatas.Length, sizeof(float) * 3);
         vertDataBuffer.SetData(vertDatas);
-        CShader.SetInt("Res", Res);
         CShader.SetBuffer(3, "vertdata", vertDataBuffer);
         CShader.Dispatch(3, Res, Res, 1);
         vertDataBuffer.GetData(vertDatas);
@@ -114,8 +115,9 @@ public class Noise : MonoBehaviour
     public Mesh AddData(Mesh mesh)
     {
         VertData[] vertData = GetVertDatas(mesh);
+        
         mesh.colors = System.Array.ConvertAll<VertData, Color>(vertData, VertDatatoColor);
-        mesh.SetUVs(0, System.Array.ConvertAll<VertData, Vector2>(vertData, VertDatatoUV));
+        mesh.uv = System.Array.ConvertAll<VertData, Vector2>(vertData, VertDatatoUV);
         return mesh;
     }
     Color VertDatatoColor(VertData n)
@@ -124,14 +126,19 @@ public class Noise : MonoBehaviour
     }
     Vector2 VertDatatoUV(VertData n)
     {
-        Debug.Log(n.UVx + "  :  " + n.UVy);
-        return new Vector2(n.UVx, n.UVy);
+        //Debug.Log(n.UVx + "  :  " + n.UVy);
+        return n.UV;
     }
-    //this is for converting x and y coords into a single index.
+    private void _printverts(Mesh mesh)
+    {
+        foreach(Vector3 v in mesh.vertices)
+        {
+            Debug.Log(v);
+        }
+    }
     public struct VertData
     {
-        public float UVx;
-        public float UVy;
         public float color;
+        public Vector2 UV;
     }
 }

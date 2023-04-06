@@ -5,11 +5,12 @@
 
 //variables
 float Scale;
-int Res;
+uint Res;
 float AnFLenght;
 int seed;
 float2 Offset;
-
+float IslandShapeScale;
+uint TotalRes; //total res of map, taken from gamemanager.
 
 //structs
 struct MeshData
@@ -22,8 +23,7 @@ struct MeshData
 struct VertData
 {
     float color;
-    float UVx;
-    float UVy;
+    float2 UV;
 };
 
 
@@ -76,11 +76,38 @@ float Unity_GradientNoise_float(float2 UV, float Scale, float Amp)
 
 float ColorWeight(uint2 id)
 {
-    
-    return id.x / Res;
-    
+    return (float)id.x / (Res - 1);
 }
 
+float GetIslandShape(float2 Offset, float Radius)
+{ 
+    float shape = 0;
+    //part 1, Top
+    //Radius - Offset.x;
+    if ((Offset.x > Offset.y)*(Offset.x > -Offset.y))
+    {
+        shape = Radius - Offset.x;
+    }
+    //part 2, Right?
+    //Radius - Offset.y;
+    if ((Offset.x <= Offset.y)*(Offset.x >= -Offset.y))
+    {
+        shape = Radius - Offset.y;
+    }
+    //part 3, Bottom
+    //Radius + Offset.x;
+    if ((Offset.x < Offset.y)*(Offset.x < -Offset.y))
+    {
+        shape = Radius + Offset.x;
+    }
+    //part 4
+    //Radius + Offset.y;
+    if ((Offset.x >= Offset.y)*(Offset.x <= -Offset.y))
+    {
+        shape = Radius + Offset.y;
+    }
+    return map(shape, 0, Radius, 0, 1);
+}
 
 //kernels
 [numthreads(1, 1, 1)]
@@ -91,9 +118,14 @@ void CSmain(uint3 id : SV_DispatchThreadID)
     for (int i = 0; i < AnFLenght; i++)
     {
         noise += FreqAndAmp[i].y * Unity_GradientNoise_float(float2(
-            (id.x / ((float)Res - 1)) + seed + Offset.x,
-            (id.y / ((float)Res - 1)) + seed + Offset.y), Scale, FreqAndAmp[i].x) - FreqAndAmp[i].y / 2;
+            ((float)id.x / ((float)Res - 1)) + seed + Offset.x,
+            ((float)id.y / ((float)Res - 1)) + seed + Offset.y), Scale, FreqAndAmp[i].x) - FreqAndAmp[i].y / 2;
+        
     }
+    float2 VertOffset = Offset + (float2)id.xy / (Res - 1);
+    float ishape = GetIslandShape(VertOffset, TotalRes/2) * IslandShapeScale;
+    noise *= ishape;
+    noise += ishape * IslandShapeScale;
     if (noise >= MinMaxHeight[1])
     {
         MinMaxHeight[1] = noise;
@@ -109,9 +141,8 @@ void CSmain(uint3 id : SV_DispatchThreadID)
 void VertDatamain(uint3 id : SV_DISPATCHTHREADID)
 {
     VertData vertdatas;
-    vertdatas.color = 1.0;
-    vertdatas.UVx = 0;
-    vertdatas.UVy = 0;
+    vertdatas.color = 1;//ColorWeight(id.xy);
+    vertdatas.UV = (float2)id.xy / (Res - 1);
     vertdata[id.x * Res + id.y] = vertdatas;
 }
 
