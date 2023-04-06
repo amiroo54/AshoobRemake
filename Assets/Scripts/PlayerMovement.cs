@@ -92,7 +92,7 @@ public class PlayerMovement : NetworkBehaviour
     [ServerRpc(RequireOwnership=false)]
     void RandomPositionServerRpc(int RandomHeight)
     {
-        torso.transform.position = new Vector3(UnityEngine.Random.Range(GameManager.instance.Res / 2, GameManager.instance.Res), 100, UnityEngine.Random.Range(GameManager.instance.Res / 2, GameManager.instance.Res));
+        torso.transform.position = new Vector3(UnityEngine.Random.Range(GameManager.Instance.Res / 2, GameManager.Instance.Res), 100, UnityEngine.Random.Range(GameManager.Instance.Res / 2, GameManager.Instance.Res));
     }    
 
 }

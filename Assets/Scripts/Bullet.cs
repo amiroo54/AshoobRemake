@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    public float speed;
-    public Rigidbody rb;
+    [SerializeField] float _speed;
+    [SerializeField] Rigidbody _rb;
     public void Shoot() {
         this.gameObject.SetActive(true);
-        rb.AddForce(transform.forward * speed, ForceMode.Impulse);
+        _rb.AddForce(transform.forward * _speed, ForceMode.Impulse);
     }
 
     private void OnCollisionEnter(Collision other) {

@@ -7,9 +7,9 @@ using System;
 
 public class Weapon : NetworkBehaviour
 {
-    public Mesh displayMesh;
+    private Mesh _displaymesh;
     public float Damage;
-    public Material material;
+    private Material _material;
     [ServerRpc]
     public virtual void StartServerRpc(){}
     [ServerRpc]
@@ -18,8 +18,8 @@ public class Weapon : NetworkBehaviour
     public virtual void SecondaryServerRpc(){}
     public override void OnNetworkSpawn()
     {
-        GetComponent<MeshRenderer>().material = material;
-        GetComponent<MeshFilter>().mesh = displayMesh;
+        GetComponent<MeshRenderer>().material = _material;
+        GetComponent<MeshFilter>().mesh = _displaymesh;
     }
     private void OnCollisionEnter(Collision other) 
     {

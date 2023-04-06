@@ -1,11 +1,11 @@
 using UnityEngine;
 using System.Collections;
 using Unity.Netcode;
-
+using System.Collections.Generic;
 public class WeaponSpawner : NetworkBehaviour
 {
     public static WeaponSpawner instance {get; private set;}
-    [SerializeField]public static GameObject[] Weapons;
+    public static List<GameObject> Weapons;
     private void Awake() {
         if (instance != null && instance != this)
         {
@@ -32,8 +32,8 @@ public class WeaponSpawner : NetworkBehaviour
         NetworkVariable<Vector3> SpawnPos = new NetworkVariable<Vector3>(new Vector3(0, 0, 0));
         if (IsHost)
         {
-            SpawnPos.Value = new Vector3(UnityEngine.Random.Range(GameManager.instance.Res / 2, - GameManager.instance.Res / 2), 100, UnityEngine.Random.Range(GameManager.instance.Res / 2, -GameManager.instance.Res/ 2));
+            SpawnPos.Value = new Vector3(UnityEngine.Random.Range(GameManager.Instance.Res / 2, - GameManager.Instance.Res / 2), 100, UnityEngine.Random.Range(GameManager.Instance.Res / 2, -GameManager.Instance.Res/ 2));
         }
-        Instantiate(Weapons[Random.Range(0, Weapons.Length)]);
+        Instantiate(Weapons[Random.Range(0, Weapons.Count)]);
     }
 }
