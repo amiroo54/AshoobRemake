@@ -21,7 +21,7 @@ public class MapSpawnManager : NetworkBehaviour
     [SerializeField] int _chunkRes;
     [SerializeField] float _scale;
     [SerializeField] Vector2[] _freqandamp;
-    [SerializeField] Gradient _grad;
+    [SerializeField] Gradient[] _grad;
     private Noise[] Maps;
     [SerializeField] Material _mapmat;
     [SerializeField] float _islandshapescale;
@@ -51,6 +51,7 @@ public class MapSpawnManager : NetworkBehaviour
             DestroyImmediate(child.gameObject);
             }
         }
+        Gradient mapcolor = _grad[UnityEngine.Random.Range(0, _grad.Length)];
         for (int x = 0; x < Res; x++)
         {
             for (int y = 0; y < Res; y++)
@@ -62,7 +63,7 @@ public class MapSpawnManager : NetworkBehaviour
                 GameObject MapGO = new GameObject("map", new Type[]{typeof(MeshRenderer), typeof(MeshFilter), typeof(MeshCollider)});
                 Noise map = MapGO.AddComponent<Noise>();
                 Vector2 offset = new Vector2(x - Res / 2, y - Res/2);
-                map.Construct(_scale, offset, _freqandamp, _grad, _chunkRes, _seed.Value, _islandshapescale, Res);
+                map.Construct(_scale, offset, _freqandamp, mapcolor, _chunkRes, _seed.Value, _islandshapescale, Res);
                 MapGO.transform.parent = transform;
                 float mapPosOffset = ((_chunkRes - 1) * Res / 2);
                 MapGO.transform.localPosition  = new Vector3(x * (_chunkRes - 1) - mapPosOffset , 0, y * (_chunkRes - 1) - mapPosOffset);
