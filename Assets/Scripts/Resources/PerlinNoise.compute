@@ -106,7 +106,7 @@ float GetIslandShape(float2 Offset, float Radius)
     {
         shape = Radius + Offset.y;
     }
-    return map(shape, 0, Radius, 0, 1);
+    return map(shape, 0, Radius - 1, 0, 1);
 }
 
 //kernels
