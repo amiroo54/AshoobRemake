@@ -26,6 +26,7 @@ public class MapSpawnManager : NetworkBehaviour
     [SerializeField] Material _mapmat;
     [SerializeField] float _islandshapescale;
     [SerializeField] Transform _water;
+    [SerializeField] private Vector2 _minmaxdata;
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -67,7 +68,23 @@ public class MapSpawnManager : NetworkBehaviour
                 MapGO.transform.localPosition  = new Vector3(x * (_chunkRes - 1) - mapPosOffset , 0, y * (_chunkRes - 1) - mapPosOffset);
                 MapGO.GetComponent<MeshRenderer>().material = _mapmat;
                 map.UpdateMeshVerts();
-                map.UpdateMeshData();
+                if (map.MinMaxData[0] < _minmaxdata[0])
+                {
+                    _minmaxdata[0] = map.MinMaxData[0];
+                }
+                if (map.MinMaxData[1] > _minmaxdata[1])
+                {
+                    _minmaxdata[1] = map.MinMaxData[1];
+                }
+                Maps[x * Res + y] = map;
+            }
+        }
+        for (int x = 0; x < Res; x++)
+        {
+            for (int y = 0; y < Res; y++)
+            {
+                Noise map = Maps[x * Res + y]; 
+                map.UpdateMeshData(_minmaxdata);
                 Maps[x * Res + y] = map;
             }
         }

@@ -11,6 +11,8 @@ int seed;
 float2 Offset;
 float IslandShapeScale;
 uint TotalRes; //total res of map, taken from gamemanager.
+float minh;
+float maxh;
 
 //structs
 struct MeshData
@@ -76,7 +78,7 @@ float Unity_GradientNoise_float(float2 UV, float Scale, float Amp)
 
 float ColorWeight(uint2 id)
 {
-    return (float)id.x / (Res - 1);
+    return map(Output[id.x * Res + id.y].y, minh, maxh, 0, 1);
 }
 
 float GetIslandShape(float2 Offset, float Radius)
@@ -141,7 +143,7 @@ void CSmain(uint3 id : SV_DispatchThreadID)
 void VertDatamain(uint3 id : SV_DISPATCHTHREADID)
 {
     VertData vertdatas;
-    vertdatas.color = 1;//ColorWeight(id.xy);
+    vertdatas.color = ColorWeight(id.xy);
     vertdatas.UV = (float2)id.xy / (Res - 1);
     vertdata[id.x * Res + id.y] = vertdatas;
 }

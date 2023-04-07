@@ -39,9 +39,9 @@ public class Noise : MonoBehaviour
         _shader = Resources.Load<ComputeShader>("PerlinNoise");
         _finalmesh = _getbasemesh();
     }
-    public void UpdateMeshData()
+    public void UpdateMeshData(Vector2 minmax)
     {
-        _finalmesh = _adddata(_finalmesh);
+        _finalmesh = _adddata(_finalmesh, minmax);
         GetComponent<MeshFilter>().mesh = _finalmesh;
         GetComponent<MeshCollider>().sharedMesh = _finalmesh;
     }
@@ -89,15 +89,21 @@ public class Noise : MonoBehaviour
         meshDatasBuffer.Release();
         return meshDatas;
     }
-    private VertData[] _getvertsdata(Mesh mesh)
+    private VertData[] _getvertsdata(Mesh mesh, Vector2 minmax)
     {
         VertData[] vertDatas = new VertData[_res * _res];
         ComputeBuffer vertDataBuffer = new ComputeBuffer(vertDatas.Length, sizeof(float) * 3);
         vertDataBuffer.SetData(vertDatas);
         _shader.SetBuffer(3, "vertdata", vertDataBuffer);
+        ComputeBuffer vertpos = new ComputeBuffer(mesh.vertexCount, sizeof(float) * 3);
+        vertpos.SetData(mesh.vertices);
+        _shader.SetBuffer(3, "Output", vertpos);
+        _shader.SetFloat("minh", minmax.x);
+        _shader.SetFloat("maxh", minmax.y);
         _shader.Dispatch(3, _res, _res, 1);
         vertDataBuffer.GetData(vertDatas);
         vertDataBuffer.Release();
+        vertpos.Release();
         return vertDatas;
     }
     private Mesh _getbasemesh()
@@ -111,9 +117,9 @@ public class Noise : MonoBehaviour
         return mesh;
     }
 
-    private Mesh _adddata(Mesh mesh)
+    private Mesh _adddata(Mesh mesh, Vector2 minmax)
     {
-        VertData[] vertData = _getvertsdata(mesh);
+        VertData[] vertData = _getvertsdata(mesh, minmax);
         
         mesh.colors = System.Array.ConvertAll<VertData, Color>(vertData, VertDatatoColor);
         mesh.uv = System.Array.ConvertAll<VertData, Vector2>(vertData, VertDatatoUV);
