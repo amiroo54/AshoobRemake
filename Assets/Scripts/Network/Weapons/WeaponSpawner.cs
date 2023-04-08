@@ -7,7 +7,8 @@ namespace Project.Network.Weapons
 public class WeaponSpawner : NetworkBehaviour
 {
     public static WeaponSpawner instance {get; private set;}
-    public static List<GameObject> Weapons;
+    public List<GameObject> Weapons;
+    NetworkVariable<Vector3> SpawnPos = new NetworkVariable<Vector3>(new Vector3(0, 0, 0));
     private void Awake() {
         if (instance != null && instance != this)
         {
@@ -16,6 +17,10 @@ public class WeaponSpawner : NetworkBehaviour
         else 
         {
             instance = this;
+        }
+        foreach (GameObject g in Weapons)
+        {
+            NetworkManager.Singleton.AddNetworkPrefab(g);
         }
     }
 
@@ -31,11 +36,12 @@ public class WeaponSpawner : NetworkBehaviour
     }
     public void SpawnWeapon()
     {
-        NetworkVariable<Vector3> SpawnPos = new NetworkVariable<Vector3>(new Vector3(0, 0, 0));
         if (IsHost)
         {
-            //SpawnPos.Value = new Vector3(UnityEngine.Random.Range(GameManager.Instance.Res / 2, - GameManager.Instance.Res / 2), 100, UnityEngine.Random.Range(GameManager.Instance.Res / 2, -GameManager.Instance.Res/ 2));
+            SpawnPos.Value = new Vector3(UnityEngine.Random.Range(MapSpawnManager.Instance.Res / 2, - MapSpawnManager.Instance.Res / 2), 100, UnityEngine.Random.Range(MapSpawnManager.Instance.Res / 2, -MapSpawnManager.Instance.Res/ 2));
+            NetworkObject w = Instantiate(Weapons[Random.Range(0, Weapons.Count)]).GetComponent<NetworkObject>();
+            w.transform.position = SpawnPos.Value;
+            w.Spawn();
         }
-        Instantiate(Weapons[Random.Range(0, Weapons.Count)]);
     }
 }}

@@ -12944,7 +12944,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1479384011}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -13312,12 +13312,6 @@ MonoBehaviour:
     NetworkPrefabs:
     - Override: 0
       Prefab: {fileID: 7106774322251727373, guid: 88e86915e5574771398931346ef87eff,
-        type: 3}
-      SourcePrefabToOverride: {fileID: 0}
-      SourceHashToOverride: 0
-      OverridingTargetPrefab: {fileID: 0}
-    - Override: 0
-      Prefab: {fileID: 3512316841365361112, guid: e38c99c5c94133625ae08696bdfa219c,
         type: 3}
       SourcePrefabToOverride: {fileID: 0}
       SourceHashToOverride: 0
@@ -14765,6 +14759,7 @@ GameObject:
   - component: {fileID: 1753524972}
   - component: {fileID: 1753524971}
   - component: {fileID: 1753524973}
+  - component: {fileID: 1753524974}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -14796,8 +14791,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1753524970}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: -40, z: 0}
+  m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 445013734}
@@ -14864,6 +14859,7 @@ Transform:
   - {fileID: 897551662}
   - {fileID: 1920121288}
   - {fileID: 1773962043}
+  - {fileID: 2023969756}
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -14974,6 +14970,20 @@ MonoBehaviour:
   _islandshapescale: 2
   _water: {fileID: 2023969756}
   _minmaxdata: {x: -8.584483, y: 19.672167}
+--- !u!114 &1753524974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1753524970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a90c9e4caeda09e3a43a8c95155720a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Weapons:
+  - {fileID: 3512316841365361112, guid: e38c99c5c94133625ae08696bdfa219c, type: 3}
 --- !u!1 &1753949674
 GameObject:
   m_ObjectHideFlags: 0
@@ -17499,8 +17509,8 @@ MeshCollider:
   m_Enabled: 1
   serializedVersion: 4
   m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+  m_CookingOptions: -1
+  m_Mesh: {fileID: -462981019419857548, guid: 0da9bd71cd196e2e49f02ba4a8cbf64f, type: 3}
 --- !u!23 &2023969754
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -17563,8 +17573,8 @@ Transform:
   m_LocalScale: {x: 60, y: 60, z: 60}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_Father: {fileID: 1753524972}
+  m_RootOrder: 64
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!1 &2069410050
 GameObject:

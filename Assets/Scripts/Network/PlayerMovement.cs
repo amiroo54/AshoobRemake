@@ -91,4 +91,11 @@ public class PlayerMovement : NetworkBehaviour
     }
 
 }
+struct PlayerData
+{
+    Vector3[] BodyPartsRot;
+    Vector3[] BodyPartsPos;
+    int CurrentWeaponIndex;
+    uint ClosestPlayerIndex;
+}
 }
