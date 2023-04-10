@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 4279168093237159219}
   m_Layer: 0
   m_Name: Graphics
-  m_Name: Graphics
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -31,7 +30,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 6445799457310982079}
   m_Father: {fileID: 6445799457310982079}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}

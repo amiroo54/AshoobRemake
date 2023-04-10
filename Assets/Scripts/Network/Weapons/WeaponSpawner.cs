@@ -21,11 +21,8 @@ public class WeaponSpawner : NetworkBehaviour
             for (int w = 0; w < Weapons.Length; w++)
             {
                 Weapons[w].GetComponent<Weapon>().index = w;
+                NetworkManager.Singleton.AddNetworkPrefab(Weapons[w]);
             }
-        }
-        foreach (GameObject g in Weapons)
-        {
-            NetworkManager.Singleton.AddNetworkPrefab(g);
         }
     }
 
@@ -44,7 +41,8 @@ public class WeaponSpawner : NetworkBehaviour
     {
         if (IsHost)
         {
-            Instantiate(Weapons[Random.Range(0, Weapons.Length)]);
+            GameObject o = Instantiate(Weapons[Random.Range(0, Weapons.Length)]);
+            o.GetComponent<NetworkObject>().Spawn();
         }
         
     }

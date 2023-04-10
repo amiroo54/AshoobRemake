@@ -21,8 +21,6 @@ public class PlayerMovement : NetworkBehaviour
     public PlayerMovement ClosestPlayer;
     public Weapon CurrentWeapon;
     public Transform WeaponHolder;
-    [SerializeField] MeshFilter WeaponMeshFileter;
-    [SerializeField] MeshRenderer WeaponMeshRenderer;
     private void Start() {
         if (!IsOwner) return;
         Input = new PlayerInput();
@@ -46,7 +44,9 @@ public class PlayerMovement : NetworkBehaviour
     void Update()
     {
         if (!IsOwner) return;
+        //moving
         MoveServerRpc(Input.Move.Move.ReadValue<Vector2>().x, Input.Move.Move.ReadValue<Vector2>().y);
+        //getting the closet player
         foreach (PlayerMovement player in PlayerList)
         {
             if (ClosestPlayer == null) {ClosestPlayer = player; return;}
@@ -59,6 +59,7 @@ public class PlayerMovement : NetworkBehaviour
                 }
             }
         }
+        //attaking
         if (Input.Move.Attack.WasPerformedThisFrame())
         {
             CurrentWeapon.MainServerRpc(ClosestPlayer.PlayerIndex, PlayerIndex);
@@ -96,12 +97,5 @@ public class PlayerMovement : NetworkBehaviour
         torso.AddForce(new Vector3(x, 0, y) * speed * Time.deltaTime, ForceMode.Impulse);
     }
 
-}
-struct PlayerData
-{
-    Vector3[] BodyPartsRot;
-    Vector3[] BodyPartsPos;
-    int CurrentWeaponIndex;
-    uint ClosestPlayerIndex;
 }
 }

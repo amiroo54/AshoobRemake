@@ -1626,14 +1626,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4929290885886871921}
-  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0.5, y: 0.5, z: 0.5, w: 0.5}
   m_LocalPosition: {x: -0, y: 1.2209177, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8274343959291399372}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 90}
 --- !u!1 &5250928164846850241
 GameObject:
   m_ObjectHideFlags: 0
@@ -2040,8 +2040,7 @@ MonoBehaviour:
   fist: {fileID: 189927843}
   ClosestPlayer: {fileID: 0}
   CurrentWeapon: {fileID: 11400000, guid: a807fe34d20913bf6bc4de6810c10b57, type: 2}
-  WeaponMeshFileter: {fileID: 0}
-  WeaponMeshRenderer: {fileID: 0}
+  WeaponHolder: {fileID: 2603802162392568761}
 --- !u!1 &7344631889055026488
 GameObject:
   m_ObjectHideFlags: 0

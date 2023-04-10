@@ -14,7 +14,7 @@ public class Bullet : MonoBehaviour
     private void OnCollisionEnter(Collision other) {
         if (other.gameObject.CompareTag("Player"))
         {
-            other.gameObject.GetComponent<PlayerMovement>(); //TODO: implement damage system
+            other.gameObject.GetComponentInParent<PlayerMovement>(); //TODO: implement damage system
         }
         this.gameObject.SetActive(false);
     }

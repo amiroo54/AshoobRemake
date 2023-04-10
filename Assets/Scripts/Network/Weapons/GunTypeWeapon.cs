@@ -19,7 +19,7 @@ public class GunTypeWeapon : Weapon
         Bullets = new Bullet[MagSize];
         for (int i = 0; i < MagSize; i++)
         {
-            Bullets[i] = GameObject.Instantiate(BulletPrefab).GetComponent<Bullet>();
+            Bullets[i] = Instantiate(BulletPrefab, transform).GetComponent<Bullet>();
             Bullets[i].gameObject.SetActive(false);
         }
         BulletIndex = 0;
