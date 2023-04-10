@@ -20,6 +20,7 @@ public class PlayerMovement : NetworkBehaviour
     public static List<PlayerMovement> PlayerList = new List<PlayerMovement>();
     public PlayerMovement ClosestPlayer;
     public Weapon CurrentWeapon;
+    public Transform WeaponHolder;
     [SerializeField] MeshFilter WeaponMeshFileter;
     [SerializeField] MeshRenderer WeaponMeshRenderer;
     private void Start() {
@@ -57,7 +58,6 @@ public class PlayerMovement : NetworkBehaviour
                     ClosestPlayer = player;
                 }
             }
-
         }
         if (Input.Move.Attack.WasPerformedThisFrame())
         {
@@ -84,7 +84,13 @@ public class PlayerMovement : NetworkBehaviour
             IsThirdPerson = true;
         }
     }
-    [ServerRpc(RequireOwnership=false)]
+    public void ChangeWeapon(int WeaponIndex)
+    {
+        CurrentWeapon = Instantiate(WeaponSpawner.Weapons[WeaponIndex].GetComponent<Weapon>(), WeaponHolder);
+        CurrentWeapon.GetComponent<Collider>().enabled = false;
+        CurrentWeapon.StartServerRpc();
+    }
+    [ServerRpc]
     void MoveServerRpc(float x, float y)
     {
         torso.AddForce(new Vector3(x, 0, y) * speed * Time.deltaTime, ForceMode.Impulse);
