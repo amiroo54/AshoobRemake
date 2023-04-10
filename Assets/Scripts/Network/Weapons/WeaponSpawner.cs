@@ -7,7 +7,8 @@ namespace Project.Network.Weapons
 public class WeaponSpawner : NetworkBehaviour
 {
     public static WeaponSpawner instance {get; private set;}
-    public static List<GameObject> Weapons;
+    public static GameObject[] Weapons {get; private set;}
+    [SerializeField] GameObject[] _weapons;
     private void Awake() {
         if (instance != null && instance != this)
         {
@@ -16,6 +17,11 @@ public class WeaponSpawner : NetworkBehaviour
         else 
         {
             instance = this;
+            WeaponSpawner.Weapons = _weapons;
+            for (int w = 0; w < Weapons.Length; w++)
+            {
+                Weapons[w].GetComponent<Weapon>().index = w;
+            }
         }
     }
 
@@ -28,6 +34,7 @@ public class WeaponSpawner : NetworkBehaviour
     {
         SpawnWeapon();
         yield return new WaitForSeconds(10);
+        StartCoroutine(spawn());
     }
     public void SpawnWeapon()
     {
@@ -36,6 +43,6 @@ public class WeaponSpawner : NetworkBehaviour
         {
             //SpawnPos.Value = new Vector3(UnityEngine.Random.Range(GameManager.Instance.Res / 2, - GameManager.Instance.Res / 2), 100, UnityEngine.Random.Range(GameManager.Instance.Res / 2, -GameManager.Instance.Res/ 2));
         }
-        Instantiate(Weapons[Random.Range(0, Weapons.Count)]);
+        Instantiate(Weapons[Random.Range(0, Weapons.Length)]);
     }
 }}

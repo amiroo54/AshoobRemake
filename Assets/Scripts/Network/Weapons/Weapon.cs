@@ -10,6 +10,7 @@ namespace Project.Network.Weapons
     private Mesh _displaymesh;
     public float Damage;
     private Material _material;
+    public int index;
     [ServerRpc]
     public virtual void StartServerRpc(){}
     [ServerRpc]
@@ -31,13 +32,8 @@ namespace Project.Network.Weapons
     [ServerRpc]
     public void PickUpWeaponServerRpc(ulong player)
     {
-        StartServerRpc();
-        PlayerMovement m = GetPlayerByID(player).GetComponentInParent<PlayerMovement>();
-        transform.parent = m.fist.gameObject.transform;
-        transform.localPosition = new Vector3(0, 0, 0);
-        GetComponent<Collider>().enabled = false;
-        GetComponent<NetworkObject>().enabled = false;
-        m.CurrentWeapon = this;
+        GetPlayerByID(player).GetComponent<PlayerMovement>().ChangeWeapon(index);
+        Destroy(this);
     }
     protected static GameObject GetPlayerByID(ulong id)
     {
