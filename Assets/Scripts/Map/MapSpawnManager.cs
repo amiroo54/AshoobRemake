@@ -46,7 +46,7 @@ public class MapSpawnManager : NetworkBehaviour
         Maps = new Noise[Res * Res];
         foreach (Transform child in GetComponentsInChildren<Transform>())
         {
-            if (child.gameObject != this.gameObject)
+            if (child.gameObject != this.gameObject && child.transform != _water)
             {
             DestroyImmediate(child.gameObject);
             }
@@ -67,6 +67,7 @@ public class MapSpawnManager : NetworkBehaviour
                 MapGO.transform.parent = transform;
                 float mapPosOffset = ((_chunkRes - 1) * Res / 2);
                 MapGO.transform.localPosition  = new Vector3(x * (_chunkRes - 1) - mapPosOffset , 0, y * (_chunkRes - 1) - mapPosOffset);
+                MapGO.transform.localScale = Vector3.one;
                 MapGO.GetComponent<MeshRenderer>().material = _mapmat;
                 map.UpdateMeshVerts();
                 if (map.MinMaxData[0] < _minmaxdata[0])

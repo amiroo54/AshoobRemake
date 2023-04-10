@@ -23,6 +23,10 @@ public class WeaponSpawner : NetworkBehaviour
                 Weapons[w].GetComponent<Weapon>().index = w;
             }
         }
+        foreach (GameObject g in Weapons)
+        {
+            NetworkManager.Singleton.AddNetworkPrefab(g);
+        }
     }
 
     public override void OnNetworkSpawn()
@@ -38,11 +42,10 @@ public class WeaponSpawner : NetworkBehaviour
     }
     public void SpawnWeapon()
     {
-        NetworkVariable<Vector3> SpawnPos = new NetworkVariable<Vector3>(new Vector3(0, 0, 0));
         if (IsHost)
         {
-            //SpawnPos.Value = new Vector3(UnityEngine.Random.Range(GameManager.Instance.Res / 2, - GameManager.Instance.Res / 2), 100, UnityEngine.Random.Range(GameManager.Instance.Res / 2, -GameManager.Instance.Res/ 2));
+            Instantiate(Weapons[Random.Range(0, Weapons.Length)]);
         }
-        Instantiate(Weapons[Random.Range(0, Weapons.Length)]);
+        
     }
 }}

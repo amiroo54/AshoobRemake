@@ -7,9 +7,7 @@ using System;
 namespace Project.Network.Weapons
 {public class Weapon : NetworkBehaviour
 {
-    private Mesh _displaymesh;
     public float Damage;
-    private Material _material;
     public int index;
     [ServerRpc]
     public virtual void StartServerRpc(){}
@@ -17,13 +15,9 @@ namespace Project.Network.Weapons
     public virtual void MainServerRpc(ulong PlayerToAttack, ulong AttackingPlayer){}
     [ServerRpc]
     public virtual void SecondaryServerRpc(){}
-    public override void OnNetworkSpawn()
-    {
-        GetComponent<MeshRenderer>().material = _material;
-        GetComponent<MeshFilter>().mesh = _displaymesh;
-    }
     private void OnCollisionEnter(Collision other) 
     {
+        Debug.Log("Collidsion  " + OwnerClientId);
         if (other.gameObject.CompareTag("Player"))
         {
             PickUpWeaponServerRpc(other.gameObject.GetComponentInParent<PlayerMovement>().PlayerIndex);
