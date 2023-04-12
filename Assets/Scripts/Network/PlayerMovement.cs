@@ -5,6 +5,7 @@ using Cinemachine;
 using UnityEngine.InputSystem;
 using Unity.Netcode;
 using Project.Network.Weapons;
+using Unity.Netcode.Components;
 namespace Project.Network
 {
 public class PlayerMovement : NetworkBehaviour
@@ -62,6 +63,7 @@ public class PlayerMovement : NetworkBehaviour
         //attaking
         if (Input.Move.Attack.WasPerformedThisFrame())
         {
+            Debug.Log("Attack from player");
             CurrentWeapon.MainServerRpc(ClosestPlayer.PlayerIndex, PlayerIndex);
         }
         if (Input.Move.Secondary.WasPerformedThisFrame())
@@ -85,9 +87,14 @@ public class PlayerMovement : NetworkBehaviour
             IsThirdPerson = true;
         }
     }
-    public void ChangeWeapon(int WeaponIndex)
+    [ServerRpc]
+    public void ChangeWeaponServerRpc(ulong WeaponIndex)
     {
-        CurrentWeapon = Instantiate(WeaponSpawner.Weapons[WeaponIndex].GetComponent<Weapon>(), WeaponHolder);
+        CurrentWeapon = GetNetworkObject(WeaponIndex).GetComponent<Weapon>();
+        Destroy(CurrentWeapon.GetComponent<NetworkRigidbody>());
+        Destroy(CurrentWeapon.GetComponent<NetworkTransform>());
+        Destroy(CurrentWeapon.GetComponent<Rigidbody>());
+        CurrentWeapon.Parent = WeaponHolder;
         CurrentWeapon.GetComponent<Collider>().enabled = false;
         CurrentWeapon.StartServerRpc();
     }

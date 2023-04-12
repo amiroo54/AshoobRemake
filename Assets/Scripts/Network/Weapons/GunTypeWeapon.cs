@@ -11,15 +11,16 @@ public class GunTypeWeapon : Weapon
     private Bullet[] Bullets;
     public GameObject BulletPrefab;
     private int BulletIndex;
-    [HideInInspector] public bool IsReloaded;
+    [SerializeField] Transform _barrel;
+    public bool IsReloaded = true;
     [ServerRpc]
     public override void StartServerRpc() 
     {
-        Debug.Log("Weapon inited");
         Bullets = new Bullet[MagSize];
         for (int i = 0; i < MagSize; i++)
         {
-            Bullets[i] = Instantiate(BulletPrefab, transform).GetComponent<Bullet>();
+            Bullets[i] = Instantiate(BulletPrefab, transform.position, Quaternion.identity).GetComponent<Bullet>();
+            Bullets[i].GetComponent<NetworkObject>().Spawn();
             Bullets[i].gameObject.SetActive(false);
         }
         BulletIndex = 0;
@@ -30,10 +31,8 @@ public class GunTypeWeapon : Weapon
         if (IsReloaded)
         {
             Bullet bul = Bullets[BulletIndex];
-            PlayerMovement p = GetPlayerByID(AttackingPlayer).GetComponent<PlayerMovement>();
-            bul.transform.position = p.fist.transform.position + p.fist.transform.up * 3f;
-            bul.transform.rotation = p.fist.rotation;
-            bul.Shoot();
+            bul.transform.position = _barrel.position;
+            bul.Shoot(_barrel.transform.forward);
             if (BulletIndex < MagSize - 1){
                 BulletIndex++;
             }
@@ -47,7 +46,7 @@ public class GunTypeWeapon : Weapon
     [ServerRpc]
     public override void SecondaryServerRpc()
     {
-        Reload();
+       StartCoroutine(Reload());
     }
 
     IEnumerator Reload()

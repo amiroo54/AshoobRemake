@@ -20,7 +20,6 @@ public class WeaponSpawner : NetworkBehaviour
             WeaponSpawner.Weapons = _weapons;
             for (int w = 0; w < Weapons.Length; w++)
             {
-                Weapons[w].GetComponent<Weapon>().index = w;
                 NetworkManager.Singleton.AddNetworkPrefab(Weapons[w]);
             }
         }

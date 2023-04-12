@@ -6,9 +6,9 @@ public class Bullet : MonoBehaviour
 {
     [SerializeField] float _speed;
     [SerializeField] Rigidbody _rb;
-    public void Shoot() {
+    public void Shoot(Vector3 Direction) {
         this.gameObject.SetActive(true);
-        _rb.AddForce(transform.forward * _speed, ForceMode.Impulse);
+        _rb.AddForce(Direction * _speed, ForceMode.Impulse);
     }
 
     private void OnCollisionEnter(Collision other) {
