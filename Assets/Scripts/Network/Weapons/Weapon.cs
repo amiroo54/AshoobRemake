@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using Unity.Netcode.Components;
 using System;
 
 namespace Project.Network.Weapons
@@ -9,7 +10,13 @@ namespace Project.Network.Weapons
 {
     public float Damage;
     [ServerRpc]
-    public virtual void StartServerRpc(){}
+    public virtual void StartServerRpc()
+    {
+        Destroy(GetComponent<NetworkRigidbody>());
+        Destroy(GetComponent<NetworkTransform>());
+        Destroy(GetComponent<Rigidbody>());
+        GetComponent<Collider>().enabled = false;
+    }
     [ServerRpc]
     public virtual void MainServerRpc(ulong PlayerToAttack, ulong AttackingPlayer){}
     [ServerRpc]

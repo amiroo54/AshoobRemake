@@ -16,6 +16,7 @@ public class GunTypeWeapon : Weapon
     [ServerRpc]
     public override void StartServerRpc() 
     {
+        base.StartServerRpc();
         Bullets = new Bullet[MagSize];
         for (int i = 0; i < MagSize; i++)
         {
@@ -51,9 +52,7 @@ public class GunTypeWeapon : Weapon
 
     IEnumerator Reload()
     {
-        Debug.Log("Reload Started");
         yield return new WaitForSeconds(ReloadTime);
-        Debug.Log("Reload Finished");
         IsReloaded = true;
         BulletIndex = 0;
     }

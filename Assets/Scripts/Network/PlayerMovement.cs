@@ -91,11 +91,7 @@ public class PlayerMovement : NetworkBehaviour
     public void ChangeWeaponServerRpc(ulong WeaponIndex)
     {
         CurrentWeapon = GetNetworkObject(WeaponIndex).GetComponent<Weapon>();
-        Destroy(CurrentWeapon.GetComponent<NetworkRigidbody>());
-        Destroy(CurrentWeapon.GetComponent<NetworkTransform>());
-        Destroy(CurrentWeapon.GetComponent<Rigidbody>());
         CurrentWeapon.Parent = WeaponHolder;
-        CurrentWeapon.GetComponent<Collider>().enabled = false;
         CurrentWeapon.StartServerRpc();
     }
     [ServerRpc]

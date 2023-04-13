@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using System;
+using Unity.Netcode.Components;
 namespace Project.Network.Weapons
-{public class FistTypeWeaponSer : Weapon
+{public class FistTypeWeapon : Weapon
 {
     public float AttackForce;
-    [ServerRpc(RequireOwnership=false)]
+    [ServerRpc]
     public override void MainServerRpc(ulong PlayerToAttack, ulong AttackingPlayer)
     {
         PlayerMovement p = GetPlayerByID(AttackingPlayer).GetComponent<PlayerMovement>();
@@ -21,13 +22,22 @@ namespace Project.Network.Weapons
             p.fist.AddForce(Vector3.Normalize(d.torso.transform.position - p.torso.transform.position) * AttackForce, ForceMode.Impulse);
         }
     }
-    [ServerRpc(RequireOwnership=false)]
+    [ServerRpc]
     public override void SecondaryServerRpc()
     {
         
     }
-    [ServerRpc(RequireOwnership=false)]
+    [ServerRpc]
     public override void StartServerRpc()
     {
+        Destroy(GetComponent<NetworkRigidbody>());
+        Destroy(GetComponent<NetworkTransform>());
+        Destroy(GetComponent<Rigidbody>());
+    }
+    private void OnCollisionEnter(Collision other) {
+        if (other.gameObject.CompareTag("Player") && Parent != null)
+        {
+            //damage the player
+        }
     }
 }}
