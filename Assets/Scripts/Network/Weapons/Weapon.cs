@@ -29,7 +29,7 @@ namespace Project.Network.Weapons
             transform.rotation = Parent.rotation;
         } 
     }
-    private void OnCollisionEnter(Collision other) 
+    protected virtual void OnCollisionEnter(Collision other) 
     {
         if (other.gameObject.CompareTag("Player"))
         {
@@ -44,6 +44,7 @@ namespace Project.Network.Weapons
     }
     protected static GameObject GetPlayerByID(ulong id)
     {
+        Debug.Log(NetworkManager.Singleton.ConnectedClients[id]);
         return NetworkManager.Singleton.ConnectedClients[id].PlayerObject.gameObject;
     }
 }}
