@@ -61,6 +61,7 @@ public class MapSpawnManager : NetworkBehaviour
                     DestroyImmediate(Maps[x * Res + y]);
                 }
                 GameObject MapGO = new GameObject("map", new Type[]{typeof(MeshRenderer), typeof(MeshFilter), typeof(MeshCollider)});
+                MapGO.isStatic = true;
                 Noise map = MapGO.AddComponent<Noise>();
                 Vector2 offset = new Vector2(x - Res / 2, y - Res/2);
                 map.Construct(_scale, offset, _freqandamp, mapcolor, _chunkRes, _seed.Value, _islandshapescale, Res);
