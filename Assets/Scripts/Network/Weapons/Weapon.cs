@@ -8,7 +8,7 @@ using System;
 namespace Project.Network.Weapons
 {public class Weapon : NetworkBehaviour
 {
-    public float Damage;
+    public int Damage;
     [ServerRpc]
     public virtual void StartServerRpc()
     {
@@ -33,18 +33,18 @@ namespace Project.Network.Weapons
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            PickUpWeaponServerRpc(other.gameObject.GetComponentInParent<PlayerMovement>().PlayerIndex);
+            PickUpWeaponServerRpc(other.gameObject.GetComponentInParent<Player>().PlayerIndex);
         }
     }
     [ServerRpc]
     public void PickUpWeaponServerRpc(ulong player)
     {
-        GetPlayerByID(player).GetComponent<PlayerMovement>().ChangeWeaponServerRpc(NetworkObjectId);
+        GetPlayerByID(player).GetComponent<Player>().ChangeWeaponServerRpc(NetworkObjectId);
         
     }
-    protected static GameObject GetPlayerByID(ulong id)
+    public static GameObject GetPlayerByID(ulong id)
     {
-        Debug.Log(NetworkManager.Singleton.ConnectedClients[id]);
+        //Debug.Log(NetworkManager.Singleton.ConnectedClients[id]);
         return NetworkManager.Singleton.ConnectedClients[id].PlayerObject.gameObject;
     }
 }}

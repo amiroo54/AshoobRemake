@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
@@ -6,10 +5,13 @@ using UnityEngine.InputSystem;
 using Unity.Netcode;
 using Project.Network.Weapons;
 using Unity.Netcode.Components;
+using Unity.Collections;
 namespace Project.Network
 {
-public class PlayerMovement : NetworkBehaviour
+public class Player : NetworkBehaviour
 {
+    public int StartingHealth;
+    public NetworkVariable<int> Health;
     public ulong PlayerIndex;
     public GameObject ThirdPerosnVC;
     public GameObject FirstPersonVC;
@@ -18,11 +20,14 @@ public class PlayerMovement : NetworkBehaviour
     private bool IsThirdPerson = true;
     public Rigidbody torso;
     public Rigidbody fist;
-    public static List<PlayerMovement> PlayerList = new List<PlayerMovement>();
-    public PlayerMovement ClosestPlayer;
+    public static List<Player> PlayerList = new List<Player>();
+    public Player ClosestPlayer;
     public Weapon CurrentWeapon;
     public Transform WeaponHolder;
-    private void Start() {
+    public NetworkVariable<FixedString128Bytes> PlayerName;
+    private void Start() 
+    {
+        Health.Value = StartingHealth;
         if (!IsOwner) return;
         Input = new PlayerInput();
         Input.Enable();
@@ -48,7 +53,7 @@ public class PlayerMovement : NetworkBehaviour
         //moving
         MoveServerRpc(Input.Move.Move.ReadValue<Vector2>().x, Input.Move.Move.ReadValue<Vector2>().y);
         //getting the closet player
-        foreach (PlayerMovement player in PlayerList)
+        foreach (Player player in PlayerList)
         {
             if (ClosestPlayer == null) {ClosestPlayer = player; return;}
             if (player == this) continue;
@@ -69,6 +74,10 @@ public class PlayerMovement : NetworkBehaviour
         if (Input.Move.Secondary.WasPerformedThisFrame())
         {
             CurrentWeapon.SecondaryServerRpc();
+        }
+        if (Health.Value <= 0)
+        {
+            Die();
         }
     }
 
@@ -100,5 +109,10 @@ public class PlayerMovement : NetworkBehaviour
         torso.AddForce(new Vector3(x, 0, y) * speed * Time.deltaTime, ForceMode.Impulse);
     }
 
+    private void Die()
+    {
+        Input.Disable();
+        
+    }
 }
 }

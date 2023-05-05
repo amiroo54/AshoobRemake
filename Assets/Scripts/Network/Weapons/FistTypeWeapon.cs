@@ -11,8 +11,8 @@ namespace Project.Network.Weapons
     [ServerRpc]
     public override void MainServerRpc(ulong PlayerToAttack, ulong AttackingPlayer)
     {
-        PlayerMovement p = GetPlayerByID(AttackingPlayer).GetComponent<PlayerMovement>();
-        PlayerMovement d = GetPlayerByID(PlayerToAttack).GetComponent<PlayerMovement>();
+        Player p = GetPlayerByID(AttackingPlayer).GetComponent<Player>();
+        Player d = GetPlayerByID(PlayerToAttack).GetComponent<Player>();
         if (PlayerToAttack == AttackingPlayer)
         {
             p.fist.AddForce((p.torso.transform.forward) * AttackForce, ForceMode.Impulse);

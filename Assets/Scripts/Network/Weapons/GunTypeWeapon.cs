@@ -33,6 +33,7 @@ public class GunTypeWeapon : Weapon
         {
             Bullet bul = Bullets[BulletIndex];
             bul.transform.position = _barrel.position;
+            bul.Damage = Damage;
             bul.Shoot(_barrel.transform.forward);
             if (BulletIndex < MagSize - 1){
                 BulletIndex++;

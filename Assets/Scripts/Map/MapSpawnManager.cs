@@ -4,18 +4,7 @@ using UnityEngine;
 using Unity.Netcode;
 using System;
 public class MapSpawnManager : NetworkBehaviour
-{
-    public static MapSpawnManager Instance {get; private set;}
-    private void Awake() {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(this);
-        }
-        else 
-        {
-            Instance = this;
-        }
-    }
+{    
     private NetworkVariable<int> _seed = new NetworkVariable<int>(0);
     public int Res;
     [SerializeField] int _chunkRes;
@@ -27,6 +16,7 @@ public class MapSpawnManager : NetworkBehaviour
     [SerializeField] float _islandshapescale;
     [SerializeField] Transform _water;
     [SerializeField] private Vector2 _minmaxdata;
+    [SerializeField] GameObject[] _dontDestroy; 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -39,6 +29,7 @@ public class MapSpawnManager : NetworkBehaviour
     }
     public void SpawnMaps()
     {   
+        _minmaxdata = new Vector2(Mathf.Infinity, Mathf.NegativeInfinity);
         if (Res % 2 == 1)
         {
             Res++;
@@ -46,9 +37,18 @@ public class MapSpawnManager : NetworkBehaviour
         Maps = new Noise[Res * Res];
         foreach (Transform child in GetComponentsInChildren<Transform>())
         {
-            if (child.gameObject != this.gameObject && child.transform != _water)
+            bool isinlist = false;
+            foreach (GameObject d in _dontDestroy)
             {
-            DestroyImmediate(child.gameObject);
+                if (d == child.gameObject)
+                {
+                    isinlist = true;
+                    break;
+                }
+            }
+            if (!isinlist)
+            {
+                DestroyImmediate(child.gameObject);
             }
         }
         Gradient mapcolor = _grad[UnityEngine.Random.Range(0, _grad.Length)];
@@ -91,7 +91,11 @@ public class MapSpawnManager : NetworkBehaviour
                 Maps[x * Res + y] = map;
             }
         }
-        float WaterScale = Res * _chunkRes / 2 - (Res / 2);
-        _water.localScale = new Vector3(WaterScale, WaterScale, WaterScale);
+        if (_water != null)
+        {
+            float WaterScale = Res * _chunkRes / 2 - (Res / 2);
+            _water.localScale = new Vector3(WaterScale, WaterScale, WaterScale);
+        }
+        
     }
 }

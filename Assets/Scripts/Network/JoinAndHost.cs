@@ -5,35 +5,66 @@ using TMPro;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using UnityEngine.SceneManagement;
-public class JoinAndHost : MonoBehaviour
+using System.Net;
+using System.Net.Sockets;
+using Project.Network;
+public class JoinAndHost : NetworkBehaviour
 {
     [SerializeField] TMP_InputField _joinTextPort;
     [SerializeField] TMP_InputField _joinTextIP;
     [SerializeField] TMP_InputField _hostTextPort;
+    [SerializeField] TMP_InputField _userName;
     [SerializeField] Transform _content; //for the rect slider.
     [SerializeField] GameObject _serverObjectPrefab;
+
+    private void Start() {
+        _userName.onValueChanged.AddListener((string name) => PlayerPrefs.SetString("Name", name));
+        _userName.text = PlayerPrefs.GetString("Name", "");
+    }
     public void Join()
     {
         UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-        ushort.TryParse(_joinTextPort.text, out transport.ConnectionData.Port);
+        if (_joinTextIP.text != null)
+        {
+            ushort.TryParse(_joinTextIP.text, out transport.ConnectionData.Port);
+        }else
+        {
+            transport.ConnectionData.Port = 7777;
+        }
         transport.ConnectionData.Address = _joinTextIP.text;
-        SceneManager.LoadScene(1);
         NetworkManager.Singleton.StartClient();
+        NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<Player>().PlayerName.Value = PlayerPrefs.GetString("Name", "Player" + Random.Range(0, 1000).ToString());
+        //NetworkManager.Singleton.SceneManager.LoadScene("Game", LoadSceneMode.Single);
     }
     public void Host()
     {
         UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-        ushort.TryParse(_hostTextPort.text, out transport.ConnectionData.Port);
-        SceneManager.LoadScene(1);
+        if (_hostTextPort.text != null)
+        {
+            ushort.TryParse(_hostTextPort.text, out transport.ConnectionData.Port);
+        }else
+        {
+            transport.ConnectionData.Port = 7777;
+        }
+        transport.ConnectionData.Address = GetLocalIPAddress();
         NetworkManager.Singleton.StartHost();
+        NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<Player>().PlayerName.Value = PlayerPrefs.GetString("Name", "Player" + Random.Range(0, 1000).ToString());
+        NetworkManager.Singleton.SceneManager.LoadScene("Game", LoadSceneMode.Single);
     }
 
     public void Server()
     {
         UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-        ushort.TryParse(_hostTextPort.text, out transport.ConnectionData.Port);
-        SceneManager.LoadScene(1);
+        if (_hostTextPort.text != null)
+        {
+            ushort.TryParse(_hostTextPort.text, out transport.ConnectionData.Port);
+        }else
+        {
+            transport.ConnectionData.Port = 7777;
+        }
         NetworkManager.Singleton.StartServer();
+        NetworkManager.Singleton.SceneManager.LoadScene("Game", LoadSceneMode.Single);
+
     }
     public void RefreshServerList()
     {
@@ -67,5 +98,18 @@ public class JoinAndHost : MonoBehaviour
     {
         public ushort Port;
         public string IP;
+    }
+    public string GetLocalIPAddress()
+    {
+        var host = Dns.GetHostEntry(Dns.GetHostName());
+        foreach (var ip in host.AddressList)
+        {
+            if (ip.AddressFamily == AddressFamily.InterNetwork)
+            {
+                 //hintText.text = ip.ToString();
+                return ip.ToString();
+            }
+        }
+        throw new System.Exception("No network adapters with an IPv4 address in the system!");
     }
 }
