@@ -24,9 +24,9 @@ public class JoinAndHost : NetworkBehaviour
     public void Join()
     {
         UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-        if (_joinTextIP.text != null)
+        if (_joinTextPort.text != "")
         {
-            ushort.TryParse(_joinTextIP.text, out transport.ConnectionData.Port);
+            ushort.TryParse(_joinTextPort.text, out transport.ConnectionData.Port);
         }else
         {
             transport.ConnectionData.Port = 7777;
@@ -39,7 +39,7 @@ public class JoinAndHost : NetworkBehaviour
     public void Host()
     {
         UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-        if (_hostTextPort.text != null)
+        if (_hostTextPort.text != "")
         {
             ushort.TryParse(_hostTextPort.text, out transport.ConnectionData.Port);
         }else
@@ -55,7 +55,7 @@ public class JoinAndHost : NetworkBehaviour
     public void Server()
     {
         UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-        if (_hostTextPort.text != null)
+        if (_hostTextPort.text != "")
         {
             ushort.TryParse(_hostTextPort.text, out transport.ConnectionData.Port);
         }else

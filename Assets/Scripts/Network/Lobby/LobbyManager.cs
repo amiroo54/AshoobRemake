@@ -16,24 +16,17 @@ public class LobbyManager : NetworkBehaviour
     [SerializeField] GameObject _gameManager;
     [SerializeField] GameObject _lobbyPanel;
     [SerializeField] Button _closeHost;
-    private void Start() {
-        if (IsHost)
-        GetComponent<NetworkObject>().Spawn();
-        else Destroy(this.gameObject);
-    }
     public override void OnNetworkSpawn()
     {
         NetworkManager.Singleton.OnClientConnectedCallback += OnPlayerSpawn;
-        _closeHost.onClick.AddListener(CloseHost);
-        PlayerListObject p = Instantiate(_playerMenuPrefab, _playerListContent).GetComponent<PlayerListObject>();
-        p.KickButton.enabled = false;
-        p.name = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<Player>().PlayerName.Value.ToString();
-        Debug.Log("Nothost");
+        
         if (IsHost)
         {
-            Debug.Log("started as host");
             NetworkManager.Singleton.LocalClient.PlayerObject.transform.position = transform.position + new Vector3(0, 20, 0);
-
+            _closeHost.onClick.AddListener(CloseHost);
+            PlayerListObject p = Instantiate(_playerMenuPrefab, _playerListContent).GetComponent<PlayerListObject>();
+            p.KickButton.gameObject.SetActive(false);
+            p.name = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<Player>().PlayerName.Value.ToString();
         }
     }
     void OnPlayerSpawn(ulong player)
@@ -46,7 +39,6 @@ public class LobbyManager : NetworkBehaviour
         {
             p.KickButton.enabled = false;
         }
-        
     }
     public void StartGame()
     {
