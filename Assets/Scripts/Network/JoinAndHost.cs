@@ -33,7 +33,6 @@ public class JoinAndHost : NetworkBehaviour
         }
         transport.ConnectionData.Address = _joinTextIP.text;
         NetworkManager.Singleton.StartClient();
-        NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<Player>().PlayerName.Value = PlayerPrefs.GetString("Name", "Player" + Random.Range(0, 1000).ToString());
         //NetworkManager.Singleton.SceneManager.LoadScene("Game", LoadSceneMode.Single);
     }
     public void Host()

@@ -41,6 +41,7 @@ public class Player : NetworkBehaviour
         base.OnNetworkSpawn();
         PlayerIndex = NetworkManager.Singleton.LocalClientId;
         PlayerList.Add(this);
+        ChangeNameServerRpc(PlayerPrefs.GetString("Name", "Player" + Random.Range(0, 1000)));
     }
     public override void OnNetworkDespawn()
     {
@@ -113,6 +114,11 @@ public class Player : NetworkBehaviour
     {
         Input.Disable();
         
+    }
+    [ServerRpc(RequireOwnership = false)]
+    void ChangeNameServerRpc(FixedString128Bytes name)
+    {
+        this.PlayerName.Value = name;
     }
 }
 }

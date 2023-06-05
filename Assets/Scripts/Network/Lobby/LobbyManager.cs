@@ -18,10 +18,9 @@ public class LobbyManager : NetworkBehaviour
     [SerializeField] Button _closeHost;
     public override void OnNetworkSpawn()
     {
-        NetworkManager.Singleton.OnClientConnectedCallback += OnPlayerSpawn;
-        
         if (IsHost)
         {
+            NetworkManager.Singleton.OnClientConnectedCallback += OnPlayerSpawn;
             NetworkManager.Singleton.LocalClient.PlayerObject.transform.position = transform.position + new Vector3(0, 20, 0);
             _closeHost.onClick.AddListener(CloseHost);
             PlayerListObject p = Instantiate(_playerMenuPrefab, _playerListContent).GetComponent<PlayerListObject>();
@@ -33,12 +32,10 @@ public class LobbyManager : NetworkBehaviour
     {
         NetworkManager.Singleton.ConnectedClients[player].PlayerObject.transform.position = transform.position + new Vector3(0, 20, 0);
         PlayerListObject p = Instantiate(_playerMenuPrefab, _playerListContent).GetComponent<PlayerListObject>();
+        p.GetComponent<NetworkObject>().Spawn();
         p.name = NetworkManager.Singleton.ConnectedClients[player].PlayerObject.GetComponent<Player>().PlayerName.Value.ToString();
         p.PlayerId = player;
-        if (!IsHost)
-        {
-            p.KickButton.enabled = false;
-        }
+        OnPlayerJoinClientRpc();
     }
     public void StartGame()
     {
@@ -57,8 +54,20 @@ public class LobbyManager : NetworkBehaviour
         Destroy(NetworkManager.Singleton.gameObject);
         Debug.Log("Shutdown");
         SceneManager.LoadScene("MainMenu");
-        
     }
-    
+    [ClientRpc]
+    void OnPlayerJoinClientRpc()
+    {
+        if (IsHost) return;
+        foreach(Transform g in _playerListContent.GetComponentsInChildren<Transform>())
+        {
+            if (g != _playerListContent.transform) Destroy(g.gameObject);
+        }
+        foreach(NetworkClient client in NetworkManager.Singleton.ConnectedClientsList)
+        {
+            PlayerListObject p = Instantiate(_playerMenuPrefab, _playerListContent).GetComponent<PlayerListObject>();
+            p.KickButton.enabled = false;
+        }
+    }
 }
 }
